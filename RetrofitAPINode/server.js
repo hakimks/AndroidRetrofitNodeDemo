@@ -49,8 +49,20 @@ app.get('/messages', function (req, res) {
     res.end(JSON.stringify(message));
 })
 
+//app.get('/ideas', function (req, res) {
+//    res.end(JSON.stringify(ideas));
+//})
+
 app.get('/ideas', function (req, res) {
-    res.end(JSON.stringify(ideas));
+    var count = req.query.count != undefined ? req.query.count : req.query.count = 100;
+    if(req.query.owner){
+        var ownerIdeas = ideas.filter(function(idea) {
+            return idea.owner == req.query.owner
+        });
+        res.end(JSON.stringify(ownerIdeas.slice(0, count)));
+    }
+    
+    res.end(JSON.stringify(ideas.slice(0, count)));
 })
 
 app.get('/ideas/:id', function (req, res) {

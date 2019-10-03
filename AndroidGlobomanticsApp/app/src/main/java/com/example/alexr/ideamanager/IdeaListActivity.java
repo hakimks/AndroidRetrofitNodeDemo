@@ -14,8 +14,15 @@ import android.widget.TextView;
 
 import com.example.alexr.ideamanager.helpers.SampleContent;
 import com.example.alexr.ideamanager.models.Idea;
+import com.example.alexr.ideamanager.services.IdeaService;
+import com.example.alexr.ideamanager.services.ServiceBuilder;
 
+import java.util.HashMap;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class IdeaListActivity extends AppCompatActivity {
 
@@ -47,7 +54,24 @@ public class IdeaListActivity extends AppCompatActivity {
             mTwoPane = true;
         }
 
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(SampleContent.IDEAS));
+        HashMap<String, String> filters = new HashMap<>();
+        filters.put("owner", "Jim");
+        filters.put("count", "1");
+
+        IdeaService ideaService = ServiceBuilder.buildService(IdeaService.class);
+        Call<List<Idea>> request = ideaService.getIdeas(filters);
+
+        request.enqueue(new Callback<List<Idea>>() {
+            @Override
+            public void onResponse(Call<List<Idea>> request, Response<List<Idea>> response) {
+                recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(response.body()));
+            }
+
+            @Override
+            public void onFailure(Call<List<Idea>> request, Throwable t) {
+                ((TextView)findViewById(R.id.message)).setText("Request Failed");
+            }
+        });
     }
 
 //region Adapter Region
